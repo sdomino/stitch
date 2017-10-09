@@ -1,6 +1,6 @@
 # stitch
 
-Go command line tool for "stitching" text files together. Provide any type of text based file (`.txt`, `.md`, `.css`, `.html`, `.js`, `.json`, `.yml`, etc.), and stitch will "stitch" them together.
+Go command line tool for "stitching" files together. Provide any type of file and stitch will do its best to stitch them together.
 
 If given a folder, stitch will only take the root level files of that folder into consideration when stitching (ie. it doesn't recursively stitch the contents of nested folders together).
 

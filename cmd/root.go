@@ -14,9 +14,6 @@ import (
 
 var (
 
-	// EXTENSIONS ...
-	EXTENSIONS = map[string]int{".md": 1, ".txt": 1, ".rtf": 1}
-
 	// vars
 	version = "0.0.2" //
 
@@ -70,10 +67,7 @@ func prerun(cmd *cobra.Command, args []string) {
 //
 func stitch(cmd *cobra.Command, args []string) error {
 
-	printv(fmt.Sprintf("Found args: '%s'", args))
-
-	// ensure that the provided extension is "allowed"
-	validateExtension(extension)
+	printv(fmt.Sprintf("Found: '%s'", args))
 
 	// create the final output directory
 	createOutputDir(output)

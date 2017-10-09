@@ -1,18 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 )
-
-// validateExtension ensures that the provided extension is supported
-func validateExtension(ext string) {
-	if _, ok := EXTENSIONS[ext]; !ok {
-		fatal(fmt.Sprintf("'%s' is not a supported extension\n", ext))
-	}
-}
 
 // createOutputDir will attempt to make "output" dir if it doesn't exist
 func createOutputDir(path string) {
