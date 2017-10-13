@@ -1,10 +1,14 @@
-# stitch
+![sticth](./stitch.png)
 
 Go command line tool for "stitching" files together. Provide any type of file and stitch will do its best to stitch them together.
 
 If given a folder, stitch will only take the root level files of that folder into consideration when stitching (ie. it doesn't recursively stitch the contents of nested folders together).
 
 > Stitch doesn't make any assumptions about the format or content of your files. It's up to you to be aware of this when stitching files together and determining the final output file type.
+
+### Installing
+
+You can either clone this repo and build from source with `go build` or you can download a release.
 
 ### Usage
 
@@ -17,7 +21,7 @@ Flags:
   -e, --extension string   Output file extension, with dot (.) (default ".md")
   -h, --help               help for stitch
   -o, --output string      Output directory (default "./")
-  -s, --strategy string    Stitch strategy [permute, sequence] (default "permute")
+  -s, --strategy string    Stitch strategy [permute, sequence] (default "permute") [NOT IMPLEMENTED]
   -v, --verbose            Verbose Output
 ```
 
@@ -45,32 +49,22 @@ $ » stitch intro.md outro.md -e .txt
 $ » stitch text.txt markdown.md styles.css index.html -e .html
 
 # Change the output file location
-$ » stitch intro.md outro.md -o /path/to/output
+$ » stitch intro.md outro.md -o /path/to/output/dir
 
 # Verbose Output
-$ » stitch colors/ eggs.md and.md food/ -v
+$ » stitch colors/ eggs-and-ham.md -v
 Found args: '[colors/ eggs.md and.md food/]'
 Adding: '/Users/sdomino/Desktop/example/colors/blue.md'
 Adding: '/Users/sdomino/Desktop/example/colors/green.md'
 Adding: '/Users/sdomino/Desktop/example/colors/red.md'
-Adding: '/Users/sdomino/Desktop/example/eggs.md'
-Adding: '/Users/sdomino/Desktop/example/and.md'
-Adding: '/Users/sdomino/Desktop/example/food/bacon.md'
-Adding: '/Users/sdomino/Desktop/example/food/ham.md'
-Adding: '/Users/sdomino/Desktop/example/food/sausage.md'
-Complete: './blue-eggs-and-bacon.md'
+Adding: '/Users/sdomino/Desktop/example/eggs-and-ham.md'
 Complete: './blue-eggs-and-ham.md'
-Complete: './blue-eggs-and-sausage.md'
-Complete: './green-eggs-and-bacon.md'
 Complete: './green-eggs-and-ham.md'
-Complete: './green-eggs-and-sausage.md'
-Complete: './red-eggs-and-bacon.md'
 Complete: './red-eggs-and-ham.md'
-Complete: './red-eggs-and-sausage.md'
 ```
 
 ## TODO
 
-- [] Add Tests
+- [] Add more tests
 - [] Ability to specify final output file name
 - [] Variable injection

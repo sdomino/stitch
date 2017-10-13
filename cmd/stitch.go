@@ -1,10 +1,9 @@
-// TODO: add a "strategy" where you can either do "permutations" or "sequential"
-
 // Package cmd ...
 package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,8 +20,8 @@ var (
 	debug     bool   // debug output
 	extension string // final file extention (.md)
 	output    string // output/directory/path
-	strategy  string // "stitch" strategy
-	verbose   bool   // verbose output
+	// strategy  string // "stitch" strategy
+	verbose bool // verbose output
 
 	// StitchCmd -
 	StitchCmd = &cobra.Command{
@@ -69,19 +68,23 @@ func stitch(cmd *cobra.Command, args []string) error {
 
 	printv(fmt.Sprintf("Found: '%s'", args))
 
-	// create the final output directory
-	createOutputDir(output)
-
-	// the final list of all files to build
-	buildlist := [][]string{}
+	// create the final output directory; will attempt to make "output" dir if it
+	// doesn't exist
+	if err := os.MkdirAll(output, 0777); err != nil {
+		fatal(err.Error())
+	}
 
 	// loop through "args" to build "buildlist"; if an arg is a file it's added to
 	// buildlist as []string{path} if it's a directory it's looped through adding
 	// file to buildlist as []string{path}
+	buildlist := [][]string{}
 	for _, arg := range args {
 
 		// get file info for the current "arg" (should be either a file or dir)
-		fi := getFileInfo(arg)
+		fi, err := os.Stat(arg)
+		if err != nil {
+			fatal(err.Error())
+		}
 
 		// determine if "arg" is a file or directory
 		switch mode := fi.Mode(); {
@@ -91,7 +94,10 @@ func stitch(cmd *cobra.Command, args []string) error {
 		case mode.IsDir():
 
 			// get all the files in the directory
-			files := readDir(arg)
+			files, err := ioutil.ReadDir(arg)
+			if err != nil {
+				fatal(err.Error())
+			}
 
 			// range through the files looking only for files to add to the buildlist
 			filelist := []string{}
@@ -121,7 +127,10 @@ func stitch(cmd *cobra.Command, args []string) error {
 	for _, list := range getPermutation(buildlist) {
 
 		// create tmpfile file at "output" to write contents to
-		tmpf := createFile(tmpfile)
+		tmpf, err := os.OpenFile(tmpfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			fatal(err.Error())
+		}
 		defer tmpf.Close()
 
 		// the name of the final output file; format: name-of-each-file.ext
@@ -137,16 +146,23 @@ func stitch(cmd *cobra.Command, args []string) error {
 			finalname += fmt.Sprintf("-%s", filename[0])
 
 			// read contents of current file
-			contents := readFile(path)
+			contents, err := ioutil.ReadFile(path)
+			if err != nil {
+				fatal(err.Error())
+			}
 
 			// write contents to tmpfile
-			writeFile(tmpf, []byte(fmt.Sprintf("%s\n", contents)))
+			if _, err := tmpf.Write([]byte(fmt.Sprintf("%s\n", contents))); err != nil {
+				fatal(err.Error())
+			}
 		}
 
 		final := fmt.Sprintf("%s/%s%s", filepath.Dir(tmpfile), strings.TrimPrefix(finalname, "-"), extension)
 
 		// convert tmpfile to the final file
-		renameFile(tmpfile, final)
+		if err := os.Rename(tmpfile, final); err != nil {
+			fatal(err.Error())
+		}
 
 		printv(fmt.Sprintf("Complete: '%s'", final))
 	}
@@ -172,4 +188,44 @@ func printd(output string) {
 func fatal(msg string) {
 	fmt.Printf("ERROR: %s\n", msg)
 	os.Exit(1)
+}
+
+// getAbsolutePath
+func getAbsolutePath(path string) string {
+	abspath, err := filepath.Abs(path)
+	if err != nil {
+		fatal(err.Error())
+	}
+	return abspath
+}
+
+// getPermutation will get all permutations of a slice of string slices. Adapted
+// from https://stackoverflow.com/a/43973743
+func getPermutation(files [][]string) [][]string {
+	permutation := [][]string{}
+
+	// return if we got an empty slice
+	if len(files) == 0 {
+		return nil
+	}
+
+	// if there is only one slice element to be permuted
+	if len(files) == 1 {
+		// each sub-element is a permutation
+		for i := range files[0] {
+			permutation = append(permutation, []string{files[0][i]})
+		}
+		return permutation
+	}
+
+	// build from right to left
+	t := getPermutation(files[1:])
+	// append permutations of the last elements to this element
+	for i := range files[0] {
+		for x := range t {
+			permutation = append(permutation, append([]string{files[0][i]}, t[x]...))
+		}
+	}
+
+	return permutation
 }
