@@ -53,7 +53,7 @@ $ » stitch intro.md outro.md -o /path/to/output/dir
 
 # Verbose Output
 $ » stitch colors/ eggs-and-ham.md -v
-Found args: '[colors/ eggs.md and.md food/]'
+Found args: '[colors/ eggs-and-ham.md]'
 Adding: '/Users/sdomino/Desktop/example/colors/blue.md'
 Adding: '/Users/sdomino/Desktop/example/colors/green.md'
 Adding: '/Users/sdomino/Desktop/example/colors/red.md'
